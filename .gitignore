@@ -1,0 +1,16 @@
+# System
+.DS_Store
+
+# Backend - Python
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+# Datasets could be large, ignoring CSVs is safer for git history size, but user can force add if needed.
+# backend/*.csv 
+
+# Frontend - Node (redundant if frontend/.gitignore exists, but good for root)
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env

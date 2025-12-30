@@ -1,0 +1,19 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded Square Background (optional/transparent context) -->
+  
+  <!-- Newspaper Document -->
+  <rect x="50" y="30" width="100" height="130" rx="6" fill="#FFFFFF" sstroke="#3E3E3E" stroke-width="0"/>
+  <path d="M50 36C50 32.6863 52.6863 30 56 30H144C147.314 30 150 32.6863 150 36V154C150 157.314 147.314 160 144 160H56C52.6863 160 50 157.314 50 154V36Z" stroke="#3E3E3E" stroke-width="6" fill="white"/>
+  
+  <!-- Lines representing text -->
+  <rect x="68" y="55" width="64" height="6" rx="3" fill="#3E3E3E" fill-opacity="0.2"/>
+  <rect x="68" y="75" width="40" height="6" rx="3" fill="#3E3E3E" fill-opacity="0.2"/>
+  <rect x="68" y="95" width="64" height="6" rx="3" fill="#3E3E3E" fill-opacity="0.2"/>
+  <rect x="68" y="115" width="50" height="6" rx="3" fill="#3E3E3E" fill-opacity="0.2"/>
+  
+  <!-- Shield/Badge Overlay -->
+  <path d="M145 125L145 125C145 125 145 125 145 125C145 125 168 125 168 143.4C168 155.8 159.6 170.6 145 178C130.4 170.6 122 155.8 122 143.4C122 125 145 125 145 125Z" fill="#E9A8C7" stroke="#FFFFFF" stroke-width="4"/>
+  
+  <!-- Checkmark inside Shield -->
+  <path d="M136 144L142 150L154 138" stroke="#3E3E3E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

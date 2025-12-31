@@ -5,10 +5,8 @@ joblib
 scikit-learn
 nltk
 textblob
-textstat
-contractions
-pandas
 numpy
+pandas
 beautifulsoup4
 requests
 python-dotenv

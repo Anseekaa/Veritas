@@ -2,15 +2,12 @@ import numpy as np
 import pandas as pd
 import re
 import string
-import textstat
-import contractions
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from textblob import TextBlob
 from sklearn.base import BaseEstimator, TransformerMixin
 
-# Ensure resources
 # Ensure resources
 try:
     nltk.data.find('corpora/stopwords')
@@ -41,10 +38,7 @@ def clean_text(text):
     """
     if not isinstance(text, str): return ""
     text = text.lower()
-    try:
-        text = contractions.fix(text)
-    except:
-        pass 
+    # Simplified: No contractions fix (lightweight)
     text = text.replace('?', ' _questionmark_ ')
     text = text.replace('!', ' _exclamationmark_ ')
     text = re.sub(r'https?://\S+|www\.\S+', '', text)
@@ -62,6 +56,42 @@ def preprocess_for_tfidf(X):
     Helper for FunctionTransformer
     """
     return [clean_text(text) for text in X]
+
+def estimate_reading_ease(text):
+    """
+    Estimate Flesch Reading Ease without external library.
+    Score = 206.835 - 1.015 (total words / total sentences) - 84.6 (total syllables / total words)
+    """
+    if not text: return 50.0
+    
+    words = text.split()
+    word_count = len(words)
+    if word_count == 0: return 50.0
+
+    sentences = re.split(r'[.!?]+', text)
+    sentence_count = len([s for s in sentences if s.strip()])
+    if sentence_count == 0: sentence_count = 1
+
+    # Heuristic syllable counting
+    def count_syllables(word):
+        word = word.lower()
+        count = 0
+        vowels = "aeiouy"
+        if word[0] in vowels:
+            count += 1
+        for i in range(1, len(word)):
+            if word[i] in vowels and word[i - 1] not in vowels:
+                count += 1
+        if word.endswith("e"):
+            count -= 1
+        if count == 0:
+            count = 1
+        return count
+
+    syllable_count = sum(count_syllables(w) for w in words)
+    
+    score = 206.835 - 1.015 * (word_count / sentence_count) - 84.6 * (syllable_count / word_count)
+    return score
 
 class TextFeatureExtractor(BaseEstimator, TransformerMixin):
     """
@@ -98,10 +128,7 @@ class TextFeatureExtractor(BaseEstimator, TransformerMixin):
         question_count = text.count('?')
         punct_ratio = (exclamation_count + question_count) / max(1, char_count)
         
-        try:
-            reading_ease = textstat.flesch_reading_ease(text)
-        except:
-            reading_ease = 50.0 
+        reading_ease = estimate_reading_ease(text)
             
         polarity = blob.sentiment.polarity
         subjectivity = blob.sentiment.subjectivity
@@ -141,15 +168,11 @@ class TextAnalyzer:
         blob = TextBlob(text)
         
         # 1. Reading Level
-        try:
-            score = textstat.flesch_reading_ease(text)
-            if score > 80: level = "Very Easy"
-            elif score > 60: level = "Standard"
-            elif score > 30: level = "Complex"
-            else: level = "Very Complex (Academic/Legal)"
-        except:
-            score = 50
-            level = "Standard"
+        score = estimate_reading_ease(text)
+        if score > 80: level = "Very Easy"
+        elif score > 60: level = "Standard"
+        elif score > 30: level = "Complex"
+        else: level = "Very Complex (Academic/Legal)"
             
         # 2. Sentiment & Objectivity
         polarity = blob.sentiment.polarity # -1 to 1
@@ -165,7 +188,6 @@ class TextAnalyzer:
         tone = "Neutral"
         lower_text = text.lower()
         
-        # Anger/Urgency triggers
         # Anger/Urgency triggers
         angry_words = {'outrage', 'furious', 'betrayal', 'disgusting', 'shame', 'illegal', 'crime'}
         fear_words = {'panic', 'crisis', 'collapse', 'danger', 'threat', 'deadly', 'catastrophe'}

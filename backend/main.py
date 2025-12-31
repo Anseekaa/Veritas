@@ -34,45 +34,44 @@ supabase: Client = None
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Load Model Pipeline
+# Global lazy loader
 model_pipeline = None
 
-@app.on_event("startup")
-def load_artifacts():
+def get_model():
     global model_pipeline
-    try:
-        # Initialize resources first
-        from features import ensure_nltk_resources
-        ensure_nltk_resources()
+    if model_pipeline is None:
+        try:
+            # Initialize NLTK first
+            from features import ensure_nltk_resources
+            ensure_nltk_resources()
+            
+            # Load model
+            print("Loading model pipeline...")
+            model_path = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
+            model_pipeline = joblib.load(model_path)
+            print("Model loaded successfully.")
+        except Exception as e:
+            print(f"CRITICAL ERROR loading model: {e}")
+            return None
+    return model_pipeline
 
-        # Load the full pipeline (includes preprocessing + features + classifier)
-        model_path = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
-        model_pipeline = joblib.load(model_path)
-        print(f"Model Pipeline loaded successfully from {model_path}")
-    except Exception as e:
-        print(f"Error loading model pipeline: {e}")
-
-        print(f"Error loading model pipeline: {e}")
+@app.on_event("startup")
+async def startup_event():
+    # Only print, do not perform heavy lifting here to avoid deployment timeouts
+    print("Application starting up...")
 
 class UrlRequest(BaseModel):
     url: str
 
-class NewsRequest(BaseModel):
+class TextRequest(BaseModel):
     text: str
 
 @app.post("/predict")
-async def predict_news(request: NewsRequest):
-    if not model_pipeline:
-        raise HTTPException(status_code=503, detail="Model pipeline not loaded")
+async def predict(request: TextRequest):
+    pipeline = get_model()
+    if pipeline is None:
+        raise HTTPException(status_code=500, detail="Model could not be loaded")
     
-    # Predict directly on raw text!
-    # The pipeline handles cleaning, tfidf, and custom feature extraction.
-    try:
-        # predict_proba expects a list/iterable of strings
-        prediction_prob = model_pipeline.predict_proba([request.text])[0]
-        prediction_cls = model_pipeline.predict([request.text])[0]
-        
-        # 0 = Real, 1 = Fake (based on training mapping)
         label = "FAKE" if prediction_cls == 1 else "REAL"
         confidence = float(max(prediction_prob))
         

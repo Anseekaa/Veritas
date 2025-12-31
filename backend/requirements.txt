@@ -2,10 +2,10 @@ fastapi==0.109.0
 uvicorn==0.27.0
 pydantic==2.6.0
 joblib==1.3.2
-# Pin scientific stack to ensure binary wheels are used (avoids compilation timeout)
-numpy==1.26.4
-scipy==1.12.0
-scikit-learn==1.3.2
+# Downgrade to highly compatible versions (Amazon Linux 2 friendly)
+numpy==1.24.4
+scipy==1.10.1
+scikit-learn==1.2.2
 nltk==3.8.1
 textblob==0.17.1
 beautifulsoup4==4.12.3

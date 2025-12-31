@@ -16,8 +16,35 @@ const AnalysisDashboard = ({ result, theme: currentTheme, onReset }) => {
 
     if (!result) return null;
 
+    // 1. Handle Backend Errors via Status
+    if (result.status && result.status.startsWith('failure')) {
+        return (
+            <div className="mt-8 p-6 rounded-2xl bg-rose-50 border border-rose-200 shadow-sm text-center">
+                <AlertOctagon className="h-12 w-12 text-rose-500 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-rose-800 mb-2">Analysis System Error</h3>
+                <p className="text-rose-700 mb-4">The AI engine encountered a startup issue.</p>
+                <div className="bg-white/50 p-4 rounded-lg text-left overflow-x-auto text-xs font-mono text-rose-900 border border-rose-100">
+                    {result.analysis?.error || "Unknown Error"}
+                </div>
+                <button onClick={onReset} className="mt-6 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors">
+                    Reset Dashboard
+                </button>
+            </div>
+        );
+    }
+
     const isReal = result.label === 'REAL';
-    const analysis = result.analysis || {};
+    // Defensive Defaults to prevent White Screen of Death
+    const analysis = {
+        tone: "Neutral",
+        sentiment: "Neutral",
+        objectivity: "Neutral",
+        reading_score: 50,
+        clickbait_score: 0,
+        flagged_keywords: [],
+        topic: "General",
+        ...result.analysis
+    };
     const confidence = result.confidence || 0;
 
     // Theme configuration based on Result + Global Theme

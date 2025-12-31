@@ -1,37 +1,17 @@
 {
-  "builds": [
+  "framework": "vite",
+  "rewrites": [
     {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
+      "source": "/predict",
+      "destination": "/api/index.py"
     },
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/predict",
-      "dest": "/backend/main.py"
+      "source": "/scan-url",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/scan-url",
-      "dest": "/backend/main.py"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/frontend/assets/$1"
-    },
-    {
-      "src": "/(.*\\.(png|svg|ico|jpg|jpeg|gif))",
-      "dest": "/frontend/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
     }
   ]
 }

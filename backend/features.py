@@ -184,18 +184,16 @@ class TextAnalyzer:
     def analyze(text):
         if not text: return {}
         
-        blob = TextBlob(text)
-        
-        # 1. Reading Level
-        score = estimate_reading_ease(text)
-        if score > 80: level = "Very Easy"
-        elif score > 60: level = "Standard"
-        elif score > 30: level = "Complex"
-        else: level = "Very Complex (Academic/Legal)"
-            
         # 2. Sentiment & Objectivity
-        polarity = blob.sentiment.polarity # -1 to 1
-        subjectivity = blob.sentiment.subjectivity # 0 to 1
+        try:
+            blob = TextBlob(text)
+            polarity = blob.sentiment.polarity # -1 to 1
+            subjectivity = blob.sentiment.subjectivity # 0 to 1
+        except Exception as e:
+            print(f"TextBlob Error: {e}")
+            # Fallback values if TextBlob fails
+            polarity = 0.0
+            subjectivity = 0.5
         
         if polarity > 0.1: sentiment_label = "Positive"
         elif polarity < -0.1: sentiment_label = "Negative"

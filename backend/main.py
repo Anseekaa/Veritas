@@ -74,7 +74,18 @@ async def predict(request: TextRequest):
         if pipeline is None:
             # Fallback to Heuristic Analysis if ML model is unavailable
             print("ML Model missing. Using Heuristic Analysis.")
-            analysis = TextAnalyzer.analyze(request.text)
+            try:
+                analysis = TextAnalyzer.analyze(request.text)
+            except Exception as e:
+                print(f"Heuristic Analysis Failed: {e}")
+                # Minimal fallback if even heuristics fail
+                analysis = {
+                    "sentiment": "Neutral",
+                    "objectivity": "Unknown",
+                    "complexity": "Standard",
+                    "clickbait_score": 0,
+                    "tone": "Neutral"
+                }
             
             # Simple Heuristic Logic
             score = 50

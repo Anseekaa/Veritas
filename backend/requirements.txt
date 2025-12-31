@@ -2,9 +2,9 @@ fastapi
 uvicorn
 pydantic
 joblib
-# Fallback Deps: No heavy ML libs due to Vercel build timeout
-nltk
-textblob
+# ZERO DEPENDENCY MODE
+# nltk (Removed)
+# textblob (Removed)
 beautifulsoup4
 requests
 python-dotenv

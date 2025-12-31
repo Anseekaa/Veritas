@@ -81,6 +81,16 @@ function App() {
           }
         } catch (e) {
           console.error("Error parsing error response:", e);
+          // If JSON parsing fails, it's likely an HTML error page (500/504) from Vercel
+          // Try to get text to offer a clue
+          try {
+            const rawText = await response.text();
+            if (rawText.toLowerCase().includes("timeout")) errorMessage = "Server Timeout (Gateway)";
+            else if (rawText.includes("function_invocation_failed")) errorMessage = "Server Crash (Function Failed)";
+            else errorMessage = `Server Error (${response.status})`;
+          } catch (err) {
+            errorMessage = `Connection Failed (${response.status})`;
+          }
         }
         throw new Error(errorMessage);
       }

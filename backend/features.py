@@ -21,6 +21,8 @@ def ensure_nltk_resources():
             nltk.download('stopwords', download_dir=nltk_data_path)
             nltk.download('wordnet', download_dir=nltk_data_path)
             nltk.download('omw-1.4', download_dir=nltk_data_path)
+            nltk.download('punkt', download_dir=nltk_data_path)
+            nltk.download('averaged_perceptron_tagger', download_dir=nltk_data_path)
         except Exception as e:
             print(f"NLTK Download Warning: {e}")
 

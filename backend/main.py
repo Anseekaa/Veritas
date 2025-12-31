@@ -1,3 +1,10 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app = FastAPI()
 
 # --- Startup Diagnostics ---

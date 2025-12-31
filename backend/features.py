@@ -27,21 +27,32 @@ def ensure_nltk_resources():
 # Call this only when needed, not at module level
 # ensure_nltk_resources()
 
-lemmatizer = WordNetLemmatizer()
-stop_words = set(stopwords.words('english'))
+# Global lazy-loaded resources
+lemmatizer = None
+stop_words = None
 
-custom_stop_words = [
-    'reuters', 'said', 'reporting', 'via', 'image', 'mr', 'washington', 
-    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
-    'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december',
-    'best', 'pm', 'am', 'night'
-]
-stop_words.update(custom_stop_words)
+def load_nltk_globals():
+    global lemmatizer, stop_words
+    if stop_words is None:
+        ensure_nltk_resources()
+        lemmatizer = WordNetLemmatizer()
+        base_stops = set(stopwords.words('english'))
+        custom_stop_words = [
+            'reuters', 'said', 'reporting', 'via', 'image', 'mr', 'washington', 
+            'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+            'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december',
+            'best', 'pm', 'am', 'night'
+        ]
+        base_stops.update(custom_stop_words)
+        stop_words = base_stops
 
 def clean_text(text):
     """
     Standard cleaning for TF-IDF vectorization.
     """
+    if stop_words is None:
+        load_nltk_globals()
+
     if not isinstance(text, str): return ""
     text = text.lower()
     # Simplified: No contractions fix (lightweight)

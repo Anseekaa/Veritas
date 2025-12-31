@@ -13,7 +13,7 @@ STOP_WORDS = {
     'which', 'go', 'me'
 }
 
-# Simple Lexicon for Sentiment (Extend as needed)
+# Simple Lexicon for Sentiment
 POSITIVE_WORDS = {
     'good', 'great', 'excellent', 'amazing', 'wonderful', 'best', 'love', 'hope',
     'happy', 'success', 'win', 'safe', 'protect', 'cure', 'solution', 'peace',
@@ -56,12 +56,13 @@ def estimate_reading_ease(text):
     sentences = re.split(r'[.!?]+', text)
     sentence_count = len([s for s in sentences if s.strip()])
     if sentence_count == 0: sentence_count = 1
+
     # Heuristic syllable counting
     def count_syllables(word):
         word = word.lower()
         count = 0
         vowels = "aeiouy"
-        if word and word[0] in vowels: count += 1 # Check if word is not empty
+        if word and word[0] in vowels: count += 1
         for i in range(1, len(word)):
             if word[i] in vowels and word[i - 1] not in vowels:
                 count += 1
@@ -149,7 +150,7 @@ class TextAnalyzer:
             "flagged_keywords": flagged_keywords
         }
 
-# Stub for compatibility if needed (though main.py now handles raw calls)
+# Stub for compatibility (Dummy)
 class TextFeatureExtractor:
     def fit(self, X, y=None): return self
     def transform(self, X): return [[0]*10 for _ in X]

@@ -38,23 +38,9 @@ if SUPABASE_URL and SUPABASE_KEY:
 model_pipeline = None
 
 def get_model():
-    global model_pipeline
-    if model_pipeline is None:
-        try:
-            # Initialize NLTK first
-            # NLTK init removed
-            # from features import ensure_nltk_resources
-            # ensure_nltk_resources()
-            
-            # Load model
-            print("Loading model pipeline...")
-            model_path = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
-            model_pipeline = joblib.load(model_path)
-            print("Model loaded successfully.")
-        except Exception as e:
-            print(f"CRITICAL ERROR loading model: {e}")
-            return None
-    return model_pipeline
+    # Force Heuristic Mode (Since ML libs are not installed)
+    # This prevents joblib from trying to load a pickle that requires sklearn
+    return None
 
 @app.on_event("startup")
 async def startup_event():

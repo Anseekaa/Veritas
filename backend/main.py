@@ -3,9 +3,9 @@ from pydantic import BaseModel
 import joblib
 import re
 import string
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
+# NLTK removed for stability
+# from nltk.corpus import stopwords
+# from nltk.stem import WordNetLemmatizer
 import os
 from features import TextAnalyzer
 from supabase import create_client, Client
@@ -42,8 +42,9 @@ def get_model():
     if model_pipeline is None:
         try:
             # Initialize NLTK first
-            from features import ensure_nltk_resources
-            ensure_nltk_resources()
+            # NLTK init removed
+            # from features import ensure_nltk_resources
+            # ensure_nltk_resources()
             
             # Load model
             print("Loading model pipeline...")

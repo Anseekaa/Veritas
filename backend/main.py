@@ -68,11 +68,25 @@ class TextRequest(BaseModel):
 
 @app.post("/predict")
 async def predict(request: TextRequest):
-    pipeline = get_model()
-    if pipeline is None:
-        raise HTTPException(status_code=500, detail="Model could not be loaded")
-    
+    import traceback
     try:
+        pipeline = get_model()
+        if pipeline is None:
+            # Re-attempt import checks to give better error
+            error_msg = "Model failed to load. "
+            try:
+                import sklearn
+                error_msg += f"Sklearn version: {sklearn.__version__}. "
+            except ImportError:
+                error_msg += "Sklearn MISSING. "
+            try:
+                import numpy
+                error_msg += f"Numpy version: {numpy.__version__}. "
+            except ImportError:
+                error_msg += "Numpy MISSING. "
+                
+            raise HTTPException(status_code=500, detail=error_msg)
+        
         # Predict directly on raw text
         prediction_cls = pipeline.predict([request.text])[0]
         
@@ -85,18 +99,6 @@ async def predict(request: TextRequest):
             
         label = "FAKE" if prediction_cls == 1 else "REAL"
         
-        # Advanced Analysis
-        analysis = TextAnalyzer.analyze(request.text)
-        
-        # Log to Supabase
-        if supabase:
-            try:
-                supabase.table("predictions").insert({
-                    "text": request.text[:500],
-                    "prediction": label,
-                    "confidence": confidence,
-                    # "analysis": analysis # optional: store analysis if DB supports it
-                }).execute()
             except Exception as e:
                 print(f"Supabase logging error: {e}")
 

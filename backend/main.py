@@ -42,8 +42,10 @@ def load_artifacts():
     global model_pipeline
     try:
         # Load the full pipeline (includes preprocessing + features + classifier)
-        model_pipeline = joblib.load("model_pipeline.pkl")
-        print("Model Pipeline loaded successfully.")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(current_dir, "model_pipeline.pkl")
+        model_pipeline = joblib.load(model_path)
+        print(f"Model Pipeline loaded successfully from {model_path}")
     except Exception as e:
         print(f"Error loading model pipeline: {e}")
 

@@ -7,18 +7,25 @@ from nltk.stem import WordNetLemmatizer
 from textblob import TextBlob
 from sklearn.base import BaseEstimator, TransformerMixin
 
-# Ensure resources
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    import os
-    nltk_data_path = "/tmp/nltk_data"
-    if not os.path.exists(nltk_data_path):
-        os.makedirs(nltk_data_path, exist_ok=True)
-    nltk.data.path.append(nltk_data_path)
-    nltk.download('stopwords', download_dir=nltk_data_path)
-    nltk.download('wordnet', download_dir=nltk_data_path)
-    nltk.download('omw-1.4', download_dir=nltk_data_path)
+# NLTK resource downloading moved to a function to prevent blocking imports
+def ensure_nltk_resources():
+    try:
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        import os
+        nltk_data_path = "/tmp/nltk_data"
+        if not os.path.exists(nltk_data_path):
+            os.makedirs(nltk_data_path, exist_ok=True)
+        nltk.data.path.append(nltk_data_path)
+        try:
+            nltk.download('stopwords', download_dir=nltk_data_path)
+            nltk.download('wordnet', download_dir=nltk_data_path)
+            nltk.download('omw-1.4', download_dir=nltk_data_path)
+        except Exception as e:
+            print(f"NLTK Download Warning: {e}")
+
+# Call this only when needed, not at module level
+# ensure_nltk_resources()
 
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))

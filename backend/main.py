@@ -41,15 +41,17 @@ model_pipeline = None
 def load_artifacts():
     global model_pipeline
     try:
+        # Initialize resources first
+        from features import ensure_nltk_resources
+        ensure_nltk_resources()
+
         # Load the full pipeline (includes preprocessing + features + classifier)
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        model_path = os.path.join(current_dir, "model_pipeline.pkl")
+        model_path = os.path.join(os.path.dirname(__file__), "model_pipeline.pkl")
         model_pipeline = joblib.load(model_path)
         print(f"Model Pipeline loaded successfully from {model_path}")
     except Exception as e:
         print(f"Error loading model pipeline: {e}")
 
-    except Exception as e:
         print(f"Error loading model pipeline: {e}")
 
 class UrlRequest(BaseModel):

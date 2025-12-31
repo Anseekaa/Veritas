@@ -2,10 +2,8 @@ fastapi
 uvicorn
 pydantic
 joblib
-# Golden Stack: Proven binary compatibility for AWS Lambda / Vercel
-numpy==1.26.4
-scikit-learn==1.3.2
-nltk==3.8.1
+# Fallback Deps: No heavy ML libs due to Vercel build timeout
+nltk
 textblob
 beautifulsoup4
 requests

@@ -2,11 +2,7 @@
   "builds": [
     {
       "src": "backend/main.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxDuration": 10,
-        "installCommand": "pip install -r requirements.txt --only-binary=:all: --no-compile"
-      }
+      "use": "@vercel/python"
     },
     {
       "src": "frontend/package.json",

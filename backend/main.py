@@ -99,6 +99,21 @@ async def predict(request: TextRequest):
             
         label = "FAKE" if prediction_cls == 1 else "REAL"
         
+        # Advanced Analysis
+        try:
+            analysis = TextAnalyzer.analyze(request.text)
+        except:
+             analysis = {}
+        
+        # Log to Supabase
+        if supabase:
+            try:
+                supabase.table("predictions").insert({
+                    "text": request.text[:500],
+                    "prediction": label,
+                    "confidence": confidence,
+                    # "analysis": analysis # optional: store analysis if DB supports it
+                }).execute()
             except Exception as e:
                 print(f"Supabase logging error: {e}")
 
@@ -108,12 +123,9 @@ async def predict(request: TextRequest):
             "analysis": analysis
         }
     except Exception as e:
-        print(f"Prediction Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-    except Exception as e:
-        print(f"Prediction Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        trace = traceback.format_exc()
+        print(f"Prediction Error: {trace}")
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)} | Trace: {trace}")
 
 @app.post("/scan-url")
 async def scan_url(request: UrlRequest):

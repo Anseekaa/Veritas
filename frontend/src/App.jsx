@@ -73,7 +73,16 @@ function App() {
       console.log("Response received:", response.status);
 
       if (!response.ok) {
-        throw new Error('Failed to get prediction')
+        let errorMessage = 'Failed to get prediction';
+        try {
+          const errorData = await response.json();
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          }
+        } catch (e) {
+          console.error("Error parsing error response:", e);
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json()

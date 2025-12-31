@@ -72,8 +72,18 @@ async def predict(request: TextRequest):
     if pipeline is None:
         raise HTTPException(status_code=500, detail="Model could not be loaded")
     
+    try:
+        # Predict directly on raw text
+        prediction_cls = pipeline.predict([request.text])[0]
+        
+        # Get probability if available
+        try:
+            prediction_prob = pipeline.predict_proba([request.text])[0]
+            confidence = float(max(prediction_prob))
+        except:
+            confidence = 1.0
+            
         label = "FAKE" if prediction_cls == 1 else "REAL"
-        confidence = float(max(prediction_prob))
         
         # Advanced Analysis
         analysis = TextAnalyzer.analyze(request.text)

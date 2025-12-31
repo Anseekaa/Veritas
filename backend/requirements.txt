@@ -2,9 +2,8 @@ fastapi
 uvicorn
 pydantic
 joblib
-# Unpinned standard stack - let pip resolve best wheels for Py3.9
-numpy
-scikit-learn
+# Removed numpy/sklearn to test if build passes without them (debugging timeout)
+# If this passes build but fails runtime, we know the issue is definitely compiling these libs.
 nltk
 textblob
 beautifulsoup4

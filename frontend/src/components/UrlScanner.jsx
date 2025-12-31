@@ -13,7 +13,7 @@ const UrlScanner = ({ onScan, disabled }) => {
         setScanning(true);
         setError(null);
         try {
-            const response = await fetch('http://127.0.0.1:8000/scan-url', {
+            const response = await fetch('/scan-url', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url }),

@@ -61,7 +61,8 @@ function App() {
 
     try {
       console.log("Sending request to backend...");
-      const response = await fetch('http://127.0.0.1:8000/predict', {
+      console.log("Sending request to backend...");
+      const response = await fetch('/predict', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

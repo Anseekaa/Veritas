@@ -1,27 +1,44 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import joblib
-import re
-import string
-# NLTK removed for stability
-# from nltk.corpus import stopwords
-# from nltk.stem import WordNetLemmatizer
-import os
-from features import TextAnalyzer
-from supabase import create_client, Client
-from dotenv import load_dotenv
-import requests
-from bs4 import BeautifulSoup
-
-load_dotenv()
-
 app = FastAPI()
 
+# --- Startup Diagnostics ---
+startup_error = None
+
+try:
+    from pydantic import BaseModel
+    import re
+    import string
+    import os
+    from dotenv import load_dotenv
+    import requests
+    from bs4 import BeautifulSoup
+    
+    # Risky Imports
+    try:
+        from features import TextAnalyzer
+    except ImportError as e:
+        import traceback
+        startup_error = f"Features Import Error: {e} | {traceback.format_exc()}"
+        TextAnalyzer = None
+
+    try:
+        from supabase import create_client, Client
+    except ImportError as e:
+         print(f"Supabase Import Warning: {e}")
+         create_client = None
+         Client = object
+
+    load_dotenv()
+
+except Exception as e:
+    import traceback
+    startup_error = f"Global Startup Error: {e} | {traceback.format_exc()}"
+
+# --- Configuration ---
 # CORS Setup
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all for dev
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,16 +47,14 @@ app.add_middleware(
 # Supabase Setup
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase: Client = None
-if SUPABASE_URL and SUPABASE_KEY:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# Global lazy loader
-model_pipeline = None
+supabase = None
+if SUPABASE_URL and SUPABASE_KEY and create_client:
+    try:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except:
+        print("Supabase connection failed")
 
 def get_model():
-    # Force Heuristic Mode (Since ML libs are not installed)
-    # This prevents joblib from trying to load a pickle that requires sklearn
     return None
 
 @app.on_event("startup")
@@ -56,11 +71,22 @@ class TextRequest(BaseModel):
 @app.post("/predict")
 async def predict(request: TextRequest):
     import traceback
+    # 0. CHECK FOR STARTUP CRASHES
+    if startup_error:
+        return {
+            "label": "ERROR",
+            "confidence": 0.0,
+            "status": "failure_startup",
+            "analysis": {"error": startup_error}
+        }
+
     try:
         pipeline = get_model()
         if pipeline is None:
             # Fallback to Heuristic Analysis if ML model is unavailable
-            print("ML Model missing. Using Heuristic Analysis.")
+            if TextAnalyzer is None:
+                 return {"label": "ERROR", "status": "failure_features_missing", "analysis": {"error": "TextAnalyzer failed to import"}}
+                 
             try:
                 analysis = TextAnalyzer.analyze(request.text)
             except Exception as e:

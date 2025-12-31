@@ -1,10 +1,6 @@
 fastapi
 uvicorn
 pydantic
-joblib
-# ZERO DEPENDENCY MODE
-# nltk (Removed)
-# textblob (Removed)
 beautifulsoup4
 requests
 python-dotenv
